@@ -15,7 +15,8 @@ build
 *.db
 
 .idea/
-euoserver/media/ 
+euoserver/media/
+euoserver/reports/
 
 # Logs:
 *.log
