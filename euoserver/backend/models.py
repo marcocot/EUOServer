@@ -1,3 +1,5 @@
+import random
+import string
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,12 +24,18 @@ class Script(models.Model):
     """
 
     title = models.CharField(max_length=120, verbose_name=_('name'))
-    hash = models.CharField(max_length=12, verbose_name=_('hash'))
+    hash = models.CharField(max_length=12, verbose_name=_('hash'), blank=True, null=True, editable=False)
     script = models.FileField(verbose_name=_('script'), upload_to='scripts')
 
     class Meta:
         verbose_name = _('script')
         verbose_name_plural = _('scripts')
+
+    def save(self, *args, **kwargs):
+        if not self.pk or not self.hash:
+            self.hash = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(12))
+
+        super(Script, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.title

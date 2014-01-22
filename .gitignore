@@ -14,5 +14,8 @@ build
 # SQLite3 database files:
 *.db
 
+.idea/
+euoserver/media/ 
+
 # Logs:
 *.log

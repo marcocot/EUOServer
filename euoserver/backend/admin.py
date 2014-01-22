@@ -1,6 +1,11 @@
 from django.contrib import admin
 from . import models
 
-admin.site.register(models.Script)
+
+class ScriptAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'title', 'hash']
+
+
+admin.site.register(models.Script, ScriptAdmin)
 admin.site.register(models.Char)
 
