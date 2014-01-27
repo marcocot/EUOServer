@@ -1,3 +1,4 @@
+import logging
 import base64
 from django.conf import settings
 from django.http import HttpResponse
@@ -8,6 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 import rsa
 from .models import Script
+
+logger = logging.getLogger(__name__)
 
 
 class EUOViewMixin(object):
@@ -23,7 +26,6 @@ class EUOViewMixin(object):
         char_id = request.META['HTTP_X_CHARID']
 
         if decrypted_char_id != char_id:
-            print char_id
             raise ValueError('La chiave pubblica non corrisponde con il charid')
 
         return decrypted_char_id
@@ -38,7 +40,12 @@ class ScriptDetailView(EUOViewMixin, View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        self.char_id = self.check_request(request)
+
+        try:
+            self.char_id = self.check_request(request)
+        except Exception:
+            logger.exception("Impossibile determinare la request")
+            self.char_id = None
 
         return super(ScriptDetailView, self).dispatch(request, *args, **kwargs)
 

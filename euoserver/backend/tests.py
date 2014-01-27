@@ -14,7 +14,6 @@ class ScriptViewTestCase(TestCase):
         if not hasattr(self.client, method):
             raise Exception('Metodo non valido ' + method)
 
-        print method
         fn = getattr(self.client, method)
         return fn(url)
 

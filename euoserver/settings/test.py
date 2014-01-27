@@ -2,10 +2,14 @@ from base import *
 
 ########## TEST SETTINGS
 
+print "OK"
+
 INSTALLED_APPS += (
     'django_jenkins',
     'autofixture',
 )
+
+print INSTALLED_APPS
 
 PROJECT_APPS = [
     'backend',
