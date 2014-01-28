@@ -9,6 +9,8 @@ from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from .managers import AccessManager
+
 
 class Char(models.Model):
     """ Singolo personaggio
@@ -100,3 +102,22 @@ class Ban(models.Model):
 
     def __unicode__(self):
         return u"{}x{}".format(self.ip, self.expires)
+
+
+class Access(models.Model):
+    """ Accesso di un char specifico ad uno script
+    """
+
+    char = models.ForeignKey('backend.Char', verbose_name=_('char'))
+    script = models.ForeignKey('backend.Script', verbose_name=_('script'))
+    expire = models.DateField(verbose_name=_('date of expire'), blank=True, null=True)
+
+    objects = AccessManager()
+
+    class Meta:
+        verbose_name = _('script access')
+        verbose_name_plural = _('script accesses')
+        unique_together = ['char', 'script']
+
+    def __unicode__(self):
+        return u"{} -> {}".format(self.char, self.script)

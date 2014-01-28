@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 import rsa
 
-from .models import Script, Ban
+from .models import Script, Ban, Access, Char
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +77,11 @@ class ScriptDetailView(EUOViewMixin, View):
         logger.info("Richiesto lo script %s", self.kwargs['slug'])
 
         script = get_object_or_404(Script, hash__exact=self.kwargs['slug'])
+        char = get_object_or_404(Char, char_id__exact=self.char_id)
+
+        if not Access.objects.has_access(char=char, script=script):
+            logger.warn("L'utente ha richiesto uno script a cui non ha accesso: %s - %s", char, script)
+            raise PermissionDenied("Accesso non consentito")
 
         response = HttpResponse(content_type='text/x-euo')
         response['Content-Disposition'] = 'attachment; filename="%s.euo"' % slugify(script.title)
