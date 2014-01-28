@@ -49,6 +49,8 @@ DATABASES = {
 ########## END DATABASE CONFIGURATION
 
 LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
     'handlers': {
         'logstash': {
             'level': 'DEBUG',

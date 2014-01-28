@@ -1,6 +1,6 @@
 # Test dependencies go here.
 -r base.txt
 
-django-jenkins==0.14.1
+-e git+git://github.com/kmmbvnr/django-jenkins.git#egg=django-jenkins
 pep8==1.4.6
 django-autofixture==0.6.3

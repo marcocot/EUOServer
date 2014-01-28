@@ -17,6 +17,7 @@ build
 .idea/
 euoserver/media/
 euoserver/reports/
+*.pem
 
 # Logs:
 *.log
