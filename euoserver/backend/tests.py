@@ -1,29 +1,99 @@
+import datetime
+from django.utils.timezone import now
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from autofixture import AutoFixture
-from .models import Script, Char
+from .models import Script, Char, Ban, Access
 
 
 class ScriptViewTestCase(TestCase):
+    valid_headers = {'HTTP_X_KEY': None, 'HTTP_X_CHARID': None}
+
     def setUp(self):
+        self.char = AutoFixture(Char, field_values={'public_key': None}).create_one()
         self.script = AutoFixture(Script).create_one()
 
-    def _action(self, url_name, url_args=None, method='get'):
+        self.valid_headers['HTTP_X_KEY'] = self.char.public_key
+        self.valid_headers['HTTP_X_CHARID'] = self.char.char_id
+        self.valid_headers['HTTP_X_FORWARDED_FOR'] = '2.2.2.2'
+
+    def _action(self, url_name, url_args=None, method='get', **headers):
         url = reverse(url_name, kwargs=url_args or {})
 
         if not hasattr(self.client, method):
             raise Exception('Metodo non valido ' + method)
 
         fn = getattr(self.client, method)
-        return fn(url)
+        return fn(url, **headers)
 
     def test_view_should_accept_only_post_requests(self):
+
+        Access.objects.create(char=self.char, script=self.script)
+
         for method in ['get', 'put', 'patch', 'delete', 'head', 'options']:
-            response = self._action('scripts:view', {'slug': self.script.hash}, method)
+            response = self._action('scripts:view', {'slug': self.script.hash}, method, **self.valid_headers)
             self.assertEqual(405, response.status_code)
 
-        response = self._action('scripts:view', {'slug': self.script.hash}, 'post')
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
         self.assertEqual(200, response.status_code)
+
+    def test_view_should_check_for_banned_ip(self):
+        """ Se un indirizzo e' stato bannato non deve poter accedere agli script
+        """
+
+        ban = Ban.objects.create(ip='0.0.0.0')
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', HTTP_X_FORWARDED_FOR=ban.ip)
+
+        self.assertEquals(403, response.status_code)
+
+    def test_view_should_create_ban_for_invalid_request(self):
+        """ Quando la richiesta non e' validata procediamo alla creazione del ban
+        """
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', HTTP_X_FORWARDED_FOR='1.1.1.1')
+
+        self.assertEquals(403, response.status_code)
+        self.assertTrue(Ban.objects.filter(ip='1.1.1.1', expires__gt=now()).exists())
+
+    def test_view_should_check_for_access(self):
+        """ Dobbiamo verificare che effettivamente l'utente abbia accesso allo script richiesto
+        """
+
+        Access.objects.create(char=self.char, script=self.script)
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(200, response.status_code)
+
+    def test_view_access_with_expired_date(self):
+
+        Access.objects.create(char=self.char, script=self.script, expire=now() - datetime.timedelta(days=1))
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(403, response.status_code)
+
+    def test_view_access_with_future_expire(self):
+
+        Access.objects.create(char=self.char, script=self.script, expire=now() + datetime.timedelta(days=1))
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(200, response.status_code)
+
+    def test_view_should_fail_if_char_id_missing(self):
+        Access.objects.create(char=self.char, script=self.script)
+        self.valid_headers.pop('HTTP_X_CHARID')
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(403, response.status_code)
+        self.assertTrue(Ban.objects.filter(ip=self.valid_headers['HTTP_X_FORWARDED_FOR']).exists())
+
+    def test_view_should_fail_if_invalid_public_key(self):
+        Access.objects.create(char=self.char, script=self.script)
+
+        self.valid_headers['HTTP_X_KEY'] = '1' * 50
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+
+        self.assertEquals(404, response.status_code)
 
 
 class ScriptModelTestCase(TestCase):
@@ -32,3 +102,45 @@ class ScriptModelTestCase(TestCase):
         script.save()
 
         self.assertIsNotNone(script.hash, "Non e' stato generato l'hash per lo script")
+
+
+class BanModelTestCase(TestCase):
+    def test_compute_default_expire_date(self):
+        """ Quando si crea un nuovo ban automaticamente deve calcolare la data di scadenza
+        """
+
+        ban = Ban(ip='0.0.0.0')
+        ban.save()
+
+        self.assertGreater(ban.expires, now())
+
+
+class CharModelTestCase(TestCase):
+    def test_compute_public_key_on_create(self):
+        """ Quando si genera un nuovo char deve essere creata la public key
+        """
+
+        char = Char.objects.create(name='Char', shard='Shard', char_id='CharId')
+
+        self.assertIsNotNone(char.public_key, 'La chiave non e\' stata generata')
+
+
+class AccessModelTestCase(TestCase):
+    def setUp(self):
+        self.char = AutoFixture(Char).create_one()
+        self.script = AutoFixture(Script).create_one()
+
+        self.tomorrow = now() + datetime.timedelta(days=1)
+        self.yesterday = now() - datetime.timedelta(days=1)
+
+    def test_has_access_if_no_expire_set(self):
+        Access.objects.create(char=self.char, script=self.script)
+        self.assertTrue(Access.objects.has_access(self.char, self.script))
+
+    def test_has_access_with_future_expire_date(self):
+        Access.objects.create(char=self.char, script=self.script, expire=self.tomorrow)
+        self.assertTrue(Access.objects.has_access(self.char, self.script))
+
+    def test_has_access_with_expired_date(self):
+        Access.objects.create(char=self.char, script=self.script, expire=self.yesterday)
+        self.assertFalse(Access.objects.has_access(self.char, self.script))

@@ -61,4 +61,5 @@ LOGGING = {
         }
     },
 }
+
 SECRET_KEY = 'asdijoancmnx9j30j9rj0jIJSIOdjoasjdklancoj90aj90sdjnoakm'
