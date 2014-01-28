@@ -7,7 +7,6 @@ INSTALLED_APPS += (
     'autofixture',
 )
 
-
 PROJECT_APPS = [
     'backend',
 ]
@@ -27,5 +26,31 @@ DATABASES = {
         "PASSWORD": "",
         "HOST": "",
         "PORT": "",
+    },
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s [%(module)s] %(message)s'
+        },
+
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'backend': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
     },
 }

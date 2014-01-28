@@ -1,8 +1,11 @@
 import base64
 import random
 import string
+import datetime
+
 import rsa
 from django.conf import settings
+from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,3 +54,49 @@ class Script(models.Model):
 
     def __unicode__(self):
         return self.title
+
+
+class Ban(models.Model):
+    """ Rappresenta un ban temporaneo ad un indirizzo IP
+    """
+
+    DEFAULT_TIME = datetime.timedelta(days=1)
+
+    ip = models.IPAddressField(verbose_name=_('ip address'))
+    expires = models.DateTimeField(verbose_name=_('date of expire'), blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('ban')
+        verbose_name_plural = _('bans')
+
+    @classmethod
+    def get_client_ip(cls, request):
+        """ Restituisce l'indirizzo ip del client
+        """
+
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    @classmethod
+    def create_from_request(cls, request):
+        """ Crea un nuovo ban dalla request
+        """
+
+        ip = cls.get_client_ip(request)
+        return Ban.objects.create(ip=ip)
+
+    def save(self, *args, **kwargs):
+        """ Quando si salva imposta a automaticamente l'expire
+        """
+
+        if not self.expires:
+            self.expires = now() + self.DEFAULT_TIME
+
+        super(Ban, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u"{}x{}".format(self.ip, self.expires)
