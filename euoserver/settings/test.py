@@ -7,6 +7,7 @@ INSTALLED_APPS += (
     'autofixture',
 )
 
+
 PROJECT_APPS = [
     'backend',
 ]
