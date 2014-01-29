@@ -15,6 +15,7 @@ class ScriptViewTestCase(TestCase):
 
         self.valid_headers['HTTP_X_KEY'] = self.char.public_key
         self.valid_headers['HTTP_X_CHARID'] = self.char.char_id
+        self.valid_headers['SERVER_PROTOCOL'] = 'HTTP/1.0'
         self.valid_headers['HTTP_X_FORWARDED_FOR'] = '2.2.2.2'
 
     def _action(self, url_name, url_args=None, method='get', **headers):
@@ -102,13 +103,24 @@ class ScriptViewTestCase(TestCase):
 
         response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
 
-        self.assertEquals(404, response.status_code)
+        self.assertEquals(403, response.status_code)
 
     def test_view_can_access_script(self):
         Access.objects.create(char=self.char, script=self.script)
 
         response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
         self.assertEquals(200, response.status_code)
+
+    def test_view_should_check_server_protocol(self):
+        """ L'unico protocol accettato deve essere l'http 1.0
+        """
+
+        Access.objects.create(char=self.char, script=self.script)
+
+        for value in ['HTTP/1.1', 'Random Strnig']:
+            self.valid_headers['SERVER_PROTOCOL'] = value
+            response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+            self.assertEquals(403, response.status_code)
 
 
 class ScriptModelTestCase(TestCase):

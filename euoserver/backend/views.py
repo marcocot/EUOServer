@@ -31,23 +31,30 @@ class EUOViewMixin(object):
             raise PermissionDenied('IP Bannato')
 
         if not 'HTTP_X_KEY' in request.META:
+            logger.warning("Non e' stata passata la chiave pubblica")
             raise PermissionDenied('Key non presente')
 
         if not 'HTTP_X_CHARID' in request.META:
+            logger.warning("Non e' stato passato il charid")
             raise PermissionDenied('CharId non presente')
+
+        if not 'SERVER_PROTOCOL' in request.META or request.META['SERVER_PROTOCOL'] != 'HTTP/1.0':
+            logger.warning("Il server protocol non corrisponde")
+            raise PermissionDenied('Server protocol non valido')
 
         try:
             decrypted_char_id = rsa.decrypt(base64.urlsafe_b64decode(request.META['HTTP_X_KEY']), settings.PRIVATE_KEY)
             char_id = request.META['HTTP_X_CHARID']
 
             if decrypted_char_id != char_id:
-                raise ValueError('La chiave pubblica non corrisponde con il charid')
+                logger.warning("La chiave pubblica non corrisponde con il charid: cid %s chiave %s", char_id,
+                    decrypted_char_id)
+                raise PermissionDenied('La chiave pubblica non corrisponde con il charid')
 
             return decrypted_char_id
         except TypeError:
             logger.exception('Errore di decodifica del base64')
-
-        return None
+            raise ValueError()
 
 
 class ScriptDetailView(EUOViewMixin, View):
@@ -56,6 +63,7 @@ class ScriptDetailView(EUOViewMixin, View):
 
     model = Script
     http_method_names = ['post', ]
+    char_id = None
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -89,4 +97,5 @@ class ScriptDetailView(EUOViewMixin, View):
         if script.script:
             response.write(script.script.read())
 
+        logger.info("Accesso consentito allo script: %s, char: %s", script, char)
         return response
