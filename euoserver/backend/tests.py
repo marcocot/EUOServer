@@ -95,6 +95,21 @@ class ScriptViewTestCase(TestCase):
 
         self.assertEquals(404, response.status_code)
 
+    def test_view_should_check_if_invalid_char_id(self):
+        Access.objects.create(char=self.char, script=self.script)
+
+        self.valid_headers['HTTP_X_CHARID'] = 'XXXX'
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+
+        self.assertEquals(404, response.status_code)
+
+    def test_view_can_access_script(self):
+        Access.objects.create(char=self.char, script=self.script)
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(200, response.status_code)
+
 
 class ScriptModelTestCase(TestCase):
     def test_compute_hash_on_save(self):
