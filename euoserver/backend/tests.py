@@ -171,7 +171,7 @@ class BanModelTestCase(TestCase):
 
         Ban.create_from_request(request)
 
-        check = Ban.objects.filter(ip=ban.ip, expires=now() + Ban.DEFAULT_TIME).exclude(pk=ban.pk).exists()
+        check = Ban.objects.filter(ip=ban.ip, expires__gt=now()).exclude(pk=ban.pk).exists()
         self.assertTrue(check)
 
 
