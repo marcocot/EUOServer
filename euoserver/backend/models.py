@@ -89,7 +89,16 @@ class Ban(models.Model):
         """
 
         ip = cls.get_client_ip(request)
-        return Ban.objects.create(ip=ip)
+
+        if Ban.objects.filter(ip=ip, expires__gte=now()).exists():
+            ban = Ban.objects.filter(ip=ip).first()
+
+            # Impostando a none l'expires verra' automaticamente calcolato nel save
+            ban.expires = None
+        else:
+            ban = Ban.objects.create(ip=ip)
+
+        ban.save()
 
     def save(self, *args, **kwargs):
         """ Quando si salva imposta a automaticamente l'expire

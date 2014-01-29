@@ -1,4 +1,5 @@
 import datetime
+from django.http import HttpRequest
 from django.utils.timezone import now
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -140,6 +141,38 @@ class BanModelTestCase(TestCase):
         ban.save()
 
         self.assertGreater(ban.expires, now())
+
+    def test_create_from_request_should_check_for_duplicates(self):
+        """ Se esiste gia' un ban **attivo** non ne creiamo un secondo, ma semplicemente lo estendiamo
+        """
+
+        request = HttpRequest()
+        ban = Ban.objects.create(ip='0.0.0.0', expires=now() + datetime.timedelta(hours=1))
+
+        # Proviamo a creare un secondo ban
+        request.META['HTTP_X_FORWARDED_FOR'] = ban.ip
+
+        Ban.create_from_request(request)
+
+        from_db = Ban.objects.get(pk=ban.pk)
+
+        # a questo punto deve essere stato esteso il ban
+        self.assertGreater(from_db.expires, now() + datetime.timedelta(hours=2))
+
+    def test_create_from_request_should_create_a_new_one_if_all_expired(self):
+        """ Se tutti i ban sullo stesso ip sono gia' passati allora semplicemente ne creiamo uno nuovo
+        """
+
+        request = HttpRequest()
+        ban = Ban.objects.create(ip='0.0.0.0', expires=now() - datetime.timedelta(hours=2))
+
+        # Proviamo a creare un secondo ban
+        request.META['HTTP_X_FORWARDED_FOR'] = ban.ip
+
+        Ban.create_from_request(request)
+
+        check = Ban.objects.filter(ip=ban.ip, expires=now() + Ban.DEFAULT_TIME).exclude(pk=ban.pk).exists()
+        self.assertTrue(check)
 
 
 class CharModelTestCase(TestCase):
