@@ -45,13 +45,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.LogstashHandler',
-            'host': 'localhost',
-            'port': 6666,
-            'version': 1,
-        },
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -63,7 +56,7 @@ LOGGING = {
     },
     'loggers': {
         'backend': {
-            'handlers': ['logstash', 'logfile'],
+            'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True
         }

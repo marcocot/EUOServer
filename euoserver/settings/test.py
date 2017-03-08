@@ -1,5 +1,7 @@
 from base import *
 
+DEBUG = True
+
 ########## TEST SETTINGS
 
 INSTALLED_APPS += (
