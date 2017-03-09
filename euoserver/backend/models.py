@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import base64
 import random
 import string
@@ -64,7 +66,7 @@ class Ban(models.Model):
 
     DEFAULT_TIME = datetime.timedelta(days=1)
 
-    ip = models.IPAddressField(verbose_name=_('ip address'))
+    ip = models.GenericIPAddressField(verbose_name=_('ip address'))
     expires = models.DateTimeField(verbose_name=_('date of expire'), blank=True, null=True)
 
     class Meta:
@@ -117,8 +119,8 @@ class Access(models.Model):
     """ Accesso di un char specifico ad uno script
     """
 
-    char = models.ForeignKey('backend.Char', verbose_name=_('char'))
-    script = models.ForeignKey('backend.Script', verbose_name=_('script'))
+    char = models.ForeignKey('Char', verbose_name=_('char'))
+    script = models.ForeignKey('Script', verbose_name=_('script'))
     expire = models.DateField(verbose_name=_('date of expire'), blank=True, null=True)
 
     objects = AccessManager()

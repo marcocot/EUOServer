@@ -14,9 +14,7 @@ ALLOWED_HOSTS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'localhost'
-EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''
-EMAIL_PORT = 25
 EMAIL_HOST_PASSWORD = None
 EMAIL_PORT = 25
 EMAIL_SUBJECT_PREFIX = '[%s] ' % SITE_NAME
@@ -45,13 +43,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.LogstashHandler',
-            'host': 'localhost',
-            'port': 6666,
-            'version': 1,
-        },
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -63,7 +54,7 @@ LOGGING = {
     },
     'loggers': {
         'backend': {
-            'handlers': ['logstash', 'logfile'],
+            'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True
         }

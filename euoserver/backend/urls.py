@@ -1,8 +1,8 @@
 __author__ = 'marco'
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from .views import ScriptDetailView
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^(?P<slug>.*)/$', ScriptDetailView.as_view(), name='view')
-)
+]
