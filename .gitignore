@@ -6,7 +6,8 @@ build
 *.db
 .idea/
 euoserver/media/
-euoserver/reports/
 *.pem
 *.log
 .vagrant/
+/reports/
+euoserver/logfile

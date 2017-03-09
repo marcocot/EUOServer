@@ -1,8 +1,6 @@
 """Development settings and globals."""
 
-import os
 from base import *
-
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug

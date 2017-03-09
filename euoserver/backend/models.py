@@ -117,8 +117,8 @@ class Access(models.Model):
     """ Accesso di un char specifico ad uno script
     """
 
-    char = models.ForeignKey('backend.Char', verbose_name=_('char'))
-    script = models.ForeignKey('backend.Script', verbose_name=_('script'))
+    char = models.ForeignKey('Char', verbose_name=_('char'))
+    script = models.ForeignKey('Script', verbose_name=_('script'))
     expire = models.DateField(verbose_name=_('date of expire'), blank=True, null=True)
 
     objects = AccessManager()

@@ -6,7 +6,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url('', include('backend.urls', namespace='scripts')),
+    url('', include('euoserver.backend.urls', namespace='scripts')),
 ]
 
 if settings.DEBUG:

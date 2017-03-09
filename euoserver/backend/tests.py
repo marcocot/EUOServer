@@ -4,7 +4,12 @@ from django.utils.timezone import now
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from autofixture import AutoFixture
-from models import Script, Char, Ban, Access
+from euoserver.backend.models import Script, Char, Ban, Access
+
+
+import pdb; pdb.set_trace()
+from django.apps import apps
+print apps.get_models()
 
 
 class ScriptViewTestCase(TestCase):
