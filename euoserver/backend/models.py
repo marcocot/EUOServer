@@ -64,7 +64,7 @@ class Ban(models.Model):
 
     DEFAULT_TIME = datetime.timedelta(days=1)
 
-    ip = models.IPAddressField(verbose_name=_('ip address'))
+    ip = models.GenericIPAddressField(verbose_name=_('ip address'))
     expires = models.DateTimeField(verbose_name=_('date of expire'), blank=True, null=True)
 
     class Meta:
