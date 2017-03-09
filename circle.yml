@@ -10,5 +10,5 @@ dependencies:
 test:
   override:
     - python manage.py test --settings=euoserver.settings.test
-  #post:
-  #   - coverage html -d $CIRCLE_ARTIFACTS
+  post:
+    - python manage.py jenkins --settings=euoserver.settings.test --enable-coverage --output $CIRCLE_ARTIFACTS

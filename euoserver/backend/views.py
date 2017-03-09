@@ -27,7 +27,7 @@ class EUOViewMixin(object):
 
         if check:
             logger.warning("Tentativo di accesso da parte di un ip bannato: %r. Scadenza ban: %s", check.ip,
-                check.expires)
+                           check.expires)
             raise PermissionDenied('IP Bannato')
 
         if not 'HTTP_X_KEY' in request.META:
@@ -48,7 +48,7 @@ class EUOViewMixin(object):
 
             if decrypted_char_id != char_id:
                 logger.warning("La chiave pubblica non corrisponde con il charid: cid %s chiave %s", char_id,
-                    decrypted_char_id)
+                               decrypted_char_id)
                 raise PermissionDenied('La chiave pubblica non corrisponde con il charid')
 
             return decrypted_char_id

@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class BackendConfig(AppConfig):
-    name = 'euoserver.backend'
+    name = 'backend'

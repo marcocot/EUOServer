@@ -135,10 +135,10 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
-                 'django.template.context_processors.debug',
+                'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
-                 'django.template.context_processors.media',
-                 'django.template.context_processors.static',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
@@ -146,7 +146,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 ########## END TEMPLATE CONFIGURATION
 
@@ -173,7 +172,8 @@ ROOT_URLCONF = 'urls'
 
 
 ########## APP CONFIGURATION
-DJANGO_APPS = (
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
+INSTALLED_APPS = [
     # Default Django apps:
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -187,19 +187,8 @@ DJANGO_APPS = (
 
     # Admin panel and documentation:
     'django.contrib.admin',
-)
-
-THIRD_PARTY_APPS = (
-
-)
-
-# Apps specific for this project go here.
-LOCAL_APPS = (
-    'backend',
-)
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+    'euoserver.backend'
+]
 ########## END APP CONFIGURATION
 
 
