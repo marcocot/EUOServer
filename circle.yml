@@ -11,4 +11,4 @@ test:
   override:
     - python manage.py test --settings=euoserver.settings.test
   post:
-    - python manage.py jenkins --settings=euoserver.settings.test --enable-coverage --output $CIRCLE_ARTIFACTS
+    - python manage.py jenkins --settings=euoserver.settings.test --enable-coverage --output $CIRCLE_TEST_REPORTS/junit/
