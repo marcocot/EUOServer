@@ -1,6 +1,6 @@
 ---
 test:
   override:
-    - manage.py test
-  post:
-    - coverage html -d $CIRCLE_ARTIFACTS
+    - manage.py test --settings=euoserver.settings.test
+  #post:
+  #   - coverage html -d $CIRCLE_ARTIFACTS
