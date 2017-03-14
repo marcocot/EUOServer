@@ -11,3 +11,4 @@ euoserver/media/
 .vagrant/
 /reports/
 euoserver/logfile
+/env
