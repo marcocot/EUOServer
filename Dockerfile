@@ -7,4 +7,5 @@ EXPOSE 8000
 WORKDIR /code
 RUN apk update && apk add mariadb-dev alpine-sdk && \
     pip install -r requirements.txt
-ENTRYPOINT ["/usr/local/bin/gunicorn", "euoserver.wsgi:application"]
+
+ENTRYPOINT ["/usr/local/bin/gunicorn", "--config", "./gunicorn.conf", "--log-config", "./logging.conf", "euoserver.wsgi:application"]

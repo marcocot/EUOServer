@@ -5,7 +5,7 @@ from base import *
 ########## HOST CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
 ALLOWED_HOSTS = [
-    'easyuo.devncode.it',
+    'devncode.it',
 ]
 ########## END HOST CONFIGURATION
 
@@ -23,13 +23,12 @@ SERVER_EMAIL = 'marco.cotrufo@devncode.it'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'easyuo',
-        'USER': 'easyuo',
-        'PASSWORD': 'litfiba',
-        'OPTIONS': {
-            'init_command': 'SET storage_engine=INNODB,character_set_connection=utf8,collation_connection=utf8_unicode_ci'
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': normpath(join(DJANGO_ROOT, 'default.db')),
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
