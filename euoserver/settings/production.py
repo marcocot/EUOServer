@@ -6,6 +6,7 @@ from base import *
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
 ALLOWED_HOSTS = [
     'devncode.it',
+    'euoserver.devncode.it',
     'localhost',
     '127.0.0.1',
 ]
@@ -41,7 +42,7 @@ SERVER_EMAIL = 'marco.cotrufo@devncode.it'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s] %(message)s",
@@ -57,11 +58,19 @@ LOGGING = {
             'backupCount': 10,
             'formatter': 'standard',
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
         'backend': {
-            'handlers': ['logfile'],
+            'handlers': ['logfile', 'console'],
             'level': 'DEBUG',
+            'propagate': True
+        },
+        'django': {
+            'handlers': ['logfile', 'console'],
+            'level': 'INFO',
             'propagate': True
         }
     },
