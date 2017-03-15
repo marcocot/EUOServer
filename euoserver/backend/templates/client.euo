@@ -1,0 +1,12 @@
+set #sendHeader X-Request-Id: , #spc , {{ uuid }} , $ , 
++ X-Key: , #spc , {{ char.public_key }} , $ , 
++ X-CharId: , #spc , #CharId , $ ,
++ X-Random-Id: , {{ script }} , $ , 
++ X-Decode-Key: , {{ slug }} , $
+
+{% if instance.client %}
+{{ instance.client.read }}
+{% endif %}
+
+send HttpPost euoserver.devncode.it /scripts/{{ slug }}/
+halt
