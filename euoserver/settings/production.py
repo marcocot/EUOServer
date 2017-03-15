@@ -65,6 +65,7 @@ LOGGING = {
     'loggers': {
         'backend': {
             'handlers': ['logfile', 'console'],
+            'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True
         },
