@@ -69,6 +69,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'euoserver': {
+            'handlers': ['logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         'django': {
             'handlers': ['logfile', 'console'],
             'level': 'INFO',
