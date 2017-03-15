@@ -3,3 +3,4 @@ django-braces>=1.11.0,<1.12
 django-model-utils>=2.0,<3.0
 logutils>=0.3.3,<0.4
 rsa>=3.4,<3.5
+django-environ>=0.4.0,<0.5.0

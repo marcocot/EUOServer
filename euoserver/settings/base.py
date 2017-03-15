@@ -2,6 +2,7 @@
 
 from os.path import abspath, basename, dirname, join, normpath, exists
 from sys import path
+import environ
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
@@ -20,9 +21,13 @@ path.append(DJANGO_ROOT)
 
 p = lambda x: normpath(join(SITE_ROOT, x))
 
+root = environ.Path(normpath(join(SITE_ROOT, '../')))
+env = environ.Env(DEBUG=(bool, False),) # set default values and casting
+environ.Env.read_env(normpath(join(SITE_ROOT, "../.env"))) # reading .env file
+
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = False
+DEBUG = env('DEBUG')
 
 ########## END DEBUG CONFIGURATION
 
@@ -41,14 +46,7 @@ MANAGERS = ADMINS
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
+   'default': env.db()
 }
 ########## END DATABASE CONFIGURATION
 
