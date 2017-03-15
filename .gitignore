@@ -12,3 +12,5 @@ euoserver/media/
 /reports/
 euoserver/logfile
 /env
+/assets
+/media

@@ -6,6 +6,8 @@ from base import *
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
 ALLOWED_HOSTS = [
     'devncode.it',
+    'localhost',
+    '127.0.0.1',
 ]
 ########## END HOST CONFIGURATION
 
@@ -37,17 +39,6 @@ EMAIL_SUBJECT_PREFIX = '[%s] ' % SITE_NAME
 EMAIL_USE_TLS = False
 SERVER_EMAIL = 'marco.cotrufo@devncode.it'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': normpath(join(DJANGO_ROOT, 'default.db')),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -76,4 +67,4 @@ LOGGING = {
     },
 }
 
-SECRET_KEY = 'asdijoancmnx9j30j9rj0jIJSIOdjoasjdklancoj90aj90sdjnoakm'
+SECRET_KEY = env('SECRET_KEY')
