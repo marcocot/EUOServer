@@ -28,9 +28,8 @@ class Char(models.Model):
         verbose_name_plural = _('chars')
 
     def save(self, *args, **kwargs):
-        if not self.public_key:
-            # Bisogna fare attenzione che rsa.encrypt funziona sono con stringhe ascii
-            self.public_key = base64.urlsafe_b64encode(rsa.encrypt(self.char_id.encode('ascii'), settings.PUBLIC_KEY))
+        # Bisogna fare attenzione che rsa.encrypt funziona sono con stringhe ascii
+        self.public_key = base64.urlsafe_b64encode(rsa.encrypt(self.char_id.encode('ascii'), settings.PUBLIC_KEY))
 
         super(Char, self).save(*args, **kwargs)
 
@@ -45,6 +44,7 @@ class Script(models.Model):
     title = models.CharField(max_length=120, verbose_name=_('name'))
     hash = models.CharField(max_length=12, verbose_name=_('hash'), blank=True, null=True, editable=False)
     script = models.FileField(verbose_name=_('script'), upload_to='scripts')
+    client = models.FileField(verbose_name=_('client'), upload_to='clients', blank=True, null=True)
 
     class Meta:
         verbose_name = _('script')

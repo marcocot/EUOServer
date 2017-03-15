@@ -1,4 +1,5 @@
 import datetime
+import codecs
 from autofixture import AutoFixture
 from django.http import HttpRequest
 from django.test import TestCase
@@ -101,6 +102,7 @@ class ScriptViewTestCase(TestCase):
         self.valid_headers['HTTP_X_CHARID'] = self.char.char_id
         self.valid_headers['SERVER_PROTOCOL'] = 'HTTP/1.0'
         self.valid_headers['HTTP_X_FORWARDED_FOR'] = '2.2.2.2'
+        self.valid_headers['HTTP_X_RANDOM_ID'] = codecs.encode(self.script.hash, 'rot_13')
 
     def _action(self, url_name, url_args=None, method='get', **headers):
         url = reverse(url_name, kwargs=url_args or {})
@@ -188,6 +190,13 @@ class ScriptViewTestCase(TestCase):
         response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
 
         self.assertEquals(403, response.status_code)
+
+    def test_view_should_check_if_invalid_script_hash(self):
+        Access.objects.create(char=self.char, script=self.script)
+        self.valid_headers['HTTP_X_RANDOM_ID'] = 'invalid'
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(403, response.status_code)        
 
     def test_view_can_access_script(self):
         Access.objects.create(char=self.char, script=self.script)
