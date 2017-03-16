@@ -103,6 +103,8 @@ class ScriptViewTestCase(TestCase):
         self.valid_headers['SERVER_PROTOCOL'] = 'HTTP/1.0'
         self.valid_headers['HTTP_X_FORWARDED_FOR'] = '2.2.2.2'
         self.valid_headers['HTTP_X_RANDOM_ID'] = codecs.encode(self.script.hash, 'rot_13')
+        self.valid_headers['HTTP_X_SHARD'] = self.char.shard
+        self.valid_headers['HTTP_X_DECODE'] = self.char.name
 
     def _action(self, url_name, url_args=None, method='get', **headers):
         url = reverse(url_name, kwargs=url_args or {})
@@ -214,3 +216,25 @@ class ScriptViewTestCase(TestCase):
             self.valid_headers['SERVER_PROTOCOL'] = value
             response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
             self.assertEquals(403, response.status_code)
+
+    def test_view_should_update_character_name_and_shard(self):
+        self.valid_headers['HTTP_X_SHARD'] = 'new_shard_name'
+        self.valid_headers['HTTP_X_DECODE'] = 'new_char_name'
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+
+        refresh = Char.objects.get(id=self.char.id)
+        self.assertEquals('new_shard_name', refresh.shard)
+        self.assertEquals('new_char_name', refresh.name)
+
+    def test_view_should_fail_if_missing_shard_name(self):
+        del self.valid_headers['HTTP_X_SHARD']
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(403, response.status_code)
+
+    def test_view_should_fail_if_missing_char_name(self):
+        del self.valid_headers['HTTP_X_DECODE']
+
+        response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(403, response.status_code)        

@@ -21,7 +21,8 @@ class Char(models.Model):
     name = models.CharField(max_length=80, verbose_name=_('name'))
     shard = models.CharField(max_length=120, verbose_name=_('shard'))
     char_id = models.CharField(max_length=6, verbose_name=_('char id'))
-    public_key = models.CharField(max_length=200, verbose_name=_('public key'), blank=True, null=True)
+    public_key = models.CharField(max_length=200, verbose_name=_('public key'),
+                                  blank=True, null=True)
 
     class Meta:
         verbose_name = _('char')
@@ -29,7 +30,8 @@ class Char(models.Model):
 
     def save(self, *args, **kwargs):
         # Bisogna fare attenzione che rsa.encrypt funziona sono con stringhe ascii
-        self.public_key = base64.urlsafe_b64encode(rsa.encrypt(self.char_id.encode('ascii'), settings.PUBLIC_KEY))
+        encrypted = rsa.encrypt(self.char_id.encode('ascii'), settings.PUBLIC_KEY)
+        self.public_key = base64.urlsafe_b64encode(encrypted)
 
         super(Char, self).save(*args, **kwargs)
 
@@ -42,7 +44,8 @@ class Script(models.Model):
     """
 
     title = models.CharField(max_length=120, verbose_name=_('name'))
-    hash = models.CharField(max_length=12, verbose_name=_('hash'), blank=True, null=True, editable=False)
+    hash = models.CharField(max_length=12, verbose_name=_('hash'), blank=True,
+                            null=True, editable=False)
     script = models.FileField(verbose_name=_('script'), upload_to='scripts')
     client = models.FileField(verbose_name=_('client'), upload_to='clients', blank=True, null=True)
 
@@ -52,7 +55,8 @@ class Script(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk or not self.hash:
-            self.hash = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(12))
+            chars = [random.choice(string.ascii_uppercase + string.digits) for _ in range(12)]
+            self.hash = ''.join(chars)
 
         super(Script, self).save(*args, **kwargs)
 
