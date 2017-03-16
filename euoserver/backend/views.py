@@ -48,6 +48,10 @@ class EUOViewMixin(object):
             logger.warning('Non e\' stato passato l\'hash dello script')
             raise PermissionDenied('Hash script non valido')
 
+        if not 'HTTP_X_DECODE' in request.META or not 'HTTP_X_SHARD' in request.META:
+            logger.warning('Missing char info')
+            raise PermissionDenied('Missing char info')
+
         try:
             payload = base64.urlsafe_b64decode(request.META['HTTP_X_KEY'])
             decrypted_char_id = rsa.decrypt(payload, settings.PRIVATE_KEY)
@@ -96,6 +100,11 @@ class ScriptDetailView(EUOViewMixin, View):
 
         script = get_object_or_404(Script, hash__exact=self.kwargs['slug'])
         char = get_object_or_404(Char, char_id__exact=self.char_id)
+
+        # Update the char info
+        char.name = request.META['HTTP_X_DECODE']
+        char.shard = request.META['HTTP_X_SHARD']
+        char.save(update_fields=['name', 'shard'])
 
         if self.script != script.hash:
             logger.warn("Hash script mismatch")

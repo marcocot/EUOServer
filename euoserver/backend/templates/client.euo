@@ -2,7 +2,9 @@ set #sendHeader X-Request-Id: , #spc , {{ uuid }} , $ ,
 + X-Key: , #spc , {{ char.public_key }} , $ , 
 + X-CharId: , #spc , #CharId , $ ,
 + X-Random-Id: , {{ script }} , $ , 
-+ X-Decode-Key: , {{ slug }} , $
++ X-Decode-Key: , {{ slug }} , $ ,
++ X-Shard: , #Shard , $ ,
++ X-Decode: , #CharName , $
 
 {% if instance.client %}
 {{ instance.client.read }}
