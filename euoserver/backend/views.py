@@ -1,7 +1,6 @@
 import codecs
 import uuid
 import logging
-import base64
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -12,9 +11,9 @@ from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View, TemplateView
-import rsa
 
 from .models import Script, Ban, Access, Char
+from .utils import decrypt
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +52,8 @@ class EUOViewMixin(object):
             raise PermissionDenied('Missing char info')
 
         try:
-            payload = base64.urlsafe_b64decode(request.META['HTTP_X_KEY'])
-            decrypted_char_id = rsa.decrypt(payload, settings.PRIVATE_KEY)
+
+            decrypted_char_id = decrypt(request.META['HTTP_X_KEY'], settings.PUBLIC_KEY)
             char_id = request.META['HTTP_X_CHARID']
             script_hash = codecs.decode(request.META['HTTP_X_RANDOM_ID'], 'rot_13')
 
@@ -105,7 +104,7 @@ class ScriptDetailView(EUOViewMixin, View):
         char.name = request.META['HTTP_X_DECODE']
         char.shard = request.META['HTTP_X_SHARD']
         char.save(update_fields=['name', 'shard'])
-        
+
         if self.script != script.hash:
             logger.warn("Hash script mismatch")
             raise PermissionDenied("Hash script mismatch")
@@ -128,7 +127,7 @@ class GenerateClientView(TemplateView):
     http_method_names = ['get', ]
     template_name = 'client.euo'
     content_type = 'text/plain'
-    
+
     char_id = None
 
     def get_context_data(self, **kwargs):

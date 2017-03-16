@@ -1,17 +1,16 @@
 from __future__ import unicode_literals
 
-import base64
 import random
 import string
 import datetime
 
-import rsa
 from django.conf import settings
 from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from .managers import AccessManager
+from .utils import encrypt
 
 
 class Char(models.Model):
@@ -30,9 +29,7 @@ class Char(models.Model):
 
     def save(self, *args, **kwargs):
         # Bisogna fare attenzione che rsa.encrypt funziona sono con stringhe ascii
-        encrypted = rsa.encrypt(self.char_id.encode('ascii'), settings.PUBLIC_KEY)
-        self.public_key = base64.urlsafe_b64encode(encrypted)
-
+        self.public_key = encrypt(self.char_id, settings.PUBLIC_KEY)
         super(Char, self).save(*args, **kwargs)
 
     def __unicode__(self):
