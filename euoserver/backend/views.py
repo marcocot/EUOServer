@@ -105,7 +105,7 @@ class ScriptDetailView(EUOViewMixin, View):
         char.name = request.META['HTTP_X_DECODE']
         char.shard = request.META['HTTP_X_SHARD']
         char.save(update_fields=['name', 'shard'])
-
+        
         if self.script != script.hash:
             logger.warn("Hash script mismatch")
             raise PermissionDenied("Hash script mismatch")
@@ -128,12 +128,11 @@ class GenerateClientView(TemplateView):
     http_method_names = ['get', ]
     template_name = 'client.euo'
     content_type = 'text/plain'
-
+    
     char_id = None
 
     def get_context_data(self, **kwargs):
         context = super(GenerateClientView, self).get_context_data(**kwargs)
-
         script = get_object_or_404(Script, hash__exact=context['slug'])
 
         context['char'] = get_object_or_404(Char, char_id__exact=context['charid'])
