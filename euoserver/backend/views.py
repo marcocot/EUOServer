@@ -28,8 +28,8 @@ class EUOViewMixin(object):
         check = Ban.objects.filter(ip=Ban.get_client_ip(request), expires__gte=now()).first()
 
         if check:
-            logger.warning("Tentativo di accesso da parte di un ip bannato: %r. Scadenza ban: %s", check.ip,
-                           check.expires)
+            logger.warning("Accesso da parte di un ip bannato: %r. Scadenza ban: %s",
+                           check.ip, check.expires)
             raise PermissionDenied('IP Bannato')
 
         if not 'HTTP_X_KEY' in request.META:
@@ -49,13 +49,14 @@ class EUOViewMixin(object):
             raise PermissionDenied('Hash script non valido')
 
         try:
-            decrypted_char_id = rsa.decrypt(base64.urlsafe_b64decode(request.META['HTTP_X_KEY']), settings.PRIVATE_KEY)
+            payload = base64.urlsafe_b64decode(request.META['HTTP_X_KEY'])
+            decrypted_char_id = rsa.decrypt(payload, settings.PRIVATE_KEY)
             char_id = request.META['HTTP_X_CHARID']
             script_hash = codecs.decode(request.META['HTTP_X_RANDOM_ID'], 'rot_13')
-        
+
             if decrypted_char_id != char_id:
-                logger.warning("La chiave pubblica non corrisponde con il charid: cid %s chiave %s", char_id,
-                               decrypted_char_id)
+                logger.warning("La chiave pubblica non corrisponde con il charid: cid %s chiave %s",
+                               char_id, decrypted_char_id)
                 raise PermissionDenied('La chiave pubblica non corrisponde con il charid')
 
             return decrypted_char_id, script_hash
@@ -101,7 +102,8 @@ class ScriptDetailView(EUOViewMixin, View):
             raise PermissionDenied("Hash script mismatch")
 
         if not Access.objects.has_access(char=char, script=script):
-            logger.warn("L'utente ha richiesto uno script a cui non ha accesso: %s - %s", char, script)
+            logger.warn("L'utente ha richiesto uno script a cui non ha accesso: %s - %s",
+                        char, script)
             raise PermissionDenied("Accesso non consentito")
 
         response = HttpResponse(content_type='text/x-euo')
@@ -116,18 +118,18 @@ class ScriptDetailView(EUOViewMixin, View):
 class GenerateClientView(TemplateView):
     http_method_names = ['get', ]
     template_name = 'client.euo'
+    content_type = 'text/plain'
 
     char_id = None
 
     def get_context_data(self, **kwargs):
         context = super(GenerateClientView, self).get_context_data(**kwargs)
-    
+
         script = get_object_or_404(Script, hash__exact=context['slug'])
-        
+
         context['char'] = get_object_or_404(Char, char_id__exact=context['charid'])
         context['uuid'] = uuid.uuid1()
         context['script'] = codecs.encode(context['slug'], 'rot_13')
         context['instance'] = script
 
         return context
-
