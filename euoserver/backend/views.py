@@ -52,7 +52,6 @@ class EUOViewMixin(object):
             raise PermissionDenied('Missing char info')
 
         try:
-
             decrypted_char_id = decrypt(request.META['HTTP_X_KEY'], settings.PUBLIC_KEY)
             char_id = request.META['HTTP_X_CHARID']
             script_hash = codecs.decode(request.META['HTTP_X_RANDOM_ID'], 'rot_13')

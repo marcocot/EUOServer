@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from euoserver.backend.models import Script, Ban, Char, Access
-
+from .utils import encrypt, decrypt
 
 class ScriptModelTestCase(TestCase):
     def test_compute_hash_on_save(self):
@@ -237,4 +237,20 @@ class ScriptViewTestCase(TestCase):
         del self.valid_headers['HTTP_X_DECODE']
 
         response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
-        self.assertEquals(403, response.status_code)        
+        self.assertEquals(403, response.status_code)
+
+class UtilsTestCase(TestCase):
+
+    def test_can_encrypt_message(self):
+        key = "boom"
+        message = "ihadadream"
+        result = "aWhhZGFkcmVhbQ=="
+
+        self.assertEquals(result, encrypt(message, key))
+
+    def test_can_decrypt_message(self):
+        key = "boom"
+        message = "aWhhZGFkcmVhbQ=="
+        result = "ihadadream"
+
+        self.assertEquals(result, decrypt(message, key))
