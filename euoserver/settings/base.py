@@ -28,8 +28,9 @@ environ.Env.read_env(normpath(join(SITE_ROOT, "../.env"))) # reading .env file
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env('DEBUG')
-
 ########## END DEBUG CONFIGURATION
+
+PUBLIC_KEY = env('PUBLIC_KEY', default='thisisthepublickey')
 
 
 ########## MANAGER CONFIGURATION
