@@ -227,16 +227,3 @@ LOGGING = {
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
-
-import rsa
-
-if not exists(p('private.pem')) or not exists(p('public.pem')):
-    PUBLIC_KEY, PRIVATE_KEY = rsa.newkeys(512)
-
-    with open(p('private.pem'), 'w') as private, open(p('public.pem'), 'w') as public:
-        private.write(rsa.PrivateKey.save_pkcs1(PRIVATE_KEY))
-        public.write(rsa.PublicKey.save_pkcs1(PUBLIC_KEY))
-
-with open(p('private.pem')) as private, open(p('public.pem')) as public:
-    PUBLIC_KEY = rsa.PublicKey.load_pkcs1(public.read())
-    PRIVATE_KEY = rsa.PrivateKey.load_pkcs1(private.read())
