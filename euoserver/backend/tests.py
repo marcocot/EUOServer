@@ -239,6 +239,14 @@ class ScriptViewTestCase(TestCase):
         response = self._action('scripts:view', {'slug': self.script.hash}, 'post', **self.valid_headers)
         self.assertEquals(403, response.status_code)
 
+    def test_view_can_access_scripts_without_flag(self):
+        script = AutoFixture(Script).create_one()
+        script.has_access = False
+        script.save()
+        self.valid_headers['HTTP_X_RANDOM_ID'] = codecs.encode(script.hash, 'rot_13')
+        response = self._action('scripts:view', {'slug': script.hash}, 'post', **self.valid_headers)
+        self.assertEquals(200, response.status_code)
+
 class UtilsTestCase(TestCase):
 
     def test_can_encrypt_message(self):

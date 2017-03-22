@@ -45,6 +45,7 @@ class Script(models.Model):
                             null=True, editable=False)
     script = models.FileField(verbose_name=_('script'), upload_to='scripts')
     client = models.FileField(verbose_name=_('client'), upload_to='clients', blank=True, null=True)
+    has_access = models.BooleanField(verbose_name=_('require access'), default=True)
 
     class Meta:
         verbose_name = _('script')

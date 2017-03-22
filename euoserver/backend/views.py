@@ -108,7 +108,7 @@ class ScriptDetailView(EUOViewMixin, View):
             logger.warn("Hash script mismatch")
             raise PermissionDenied("Hash script mismatch")
 
-        if not Access.objects.has_access(char=char, script=script):
+        if script.has_access and not Access.objects.has_access(char=char, script=script):
             logger.warn("L'utente ha richiesto uno script a cui non ha accesso: %s - %s",
                         char, script)
             raise PermissionDenied("Accesso non consentito")
