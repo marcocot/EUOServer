@@ -122,6 +122,22 @@ class ScriptDetailView(EUOViewMixin, View):
         logger.info("Accesso consentito allo script: %s, char: %s", script, char)
         return response
 
+class ScriptView(View):
+    """ Direct access to a script """
+
+    def post(self, request, *args, **kwargs):
+        logger.info("Richiesto accesso diretto a %s", self.kwargs['slug'])
+        script = get_object_or_404(Script, hash__exact=self.kwargs['slug'], has_access=False)
+
+        response = HttpResponse(content_type='text/x-euo')
+        response['Content-Disposition'] = 'attachment; filename="%s.euo"' % slugify(script.title)
+
+        if script.script:
+            response.write(script.script.read())
+
+        logger.info("Accesso a %s", script)
+        return response
+
 class GenerateClientView(TemplateView):
     http_method_names = ['get', ]
     template_name = 'client.euo'

@@ -262,3 +262,19 @@ class UtilsTestCase(TestCase):
         result = "ihadadream"
 
         self.assertEquals(result, decrypt(message, key))
+
+class ScriptViewTest(TestCase):
+
+    def test_can_access_script(self):
+        script = AutoFixture(Script, field_values={'has_access': False}).create_one()
+        url = reverse('scripts:common', kwargs={'slug': script.hash})
+        response = self.client.post(url)
+
+        self.assertEquals(200, response.status_code)
+
+    def test_cant_access_script_with_access_control(self):
+        script = AutoFixture(Script, field_values={'has_access': True}).create_one()
+        url = reverse('scripts:common', kwargs={'slug': script.hash})
+        response = self.client.post(url)
+
+        self.assertEquals(404, response.status_code)        
