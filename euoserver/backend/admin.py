@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.shortcuts import redirect
 from . import models
 
 
@@ -18,6 +19,26 @@ class CharAdmin(admin.ModelAdmin):
 class ScriptAdmin(admin.ModelAdmin):
     list_display = ['pk', 'title', 'hash']
 
+    def get_actions(self, request):
+        actions = super(ScriptAdmin, self).get_actions(request)
+        if not request.user.is_superuser:
+            return []
+        return actions
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def get_list_display(self, request):
+        if request.user.is_superuser:
+            return super(ScriptAdmin, self).get_list_display(request)
+
+        return ['title', 'hash']
+
+    def change_view(self, request, object_id, extra_content=None):
+        if request.user.is_superuser:
+            return super(ScriptAdmin, self).change_view(request, object_id, extra_content)
+
+        return redirect('admin:backend_script_changelist')
 
 class BanAdmin(admin.ModelAdmin):
     list_display = ['pk', 'ip', 'expires']
